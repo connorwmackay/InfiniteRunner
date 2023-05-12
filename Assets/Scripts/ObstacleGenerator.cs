@@ -26,7 +26,8 @@ public class ObstacleGenerator : MonoBehaviour
         if (noJump)
         {
             // Prevent a potential infinite loop
-                int iterations = 0;
+            // TODO: Pick from a new list with only wall variants without a jump requirement
+            int iterations = 0;
             while (wallVariants[wallVariantIndex].GetComponent<WallVariant>().isJumpRequired && iterations < 150)
             {
                 wallVariantIndex = Random.Range(0, wallVariants.Count);

@@ -21,15 +21,15 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        transform.Translate(transform.forward * moveSpeed * Time.deltaTime);
+        transform.Translate(-transform.forward * moveSpeed * Time.deltaTime);
 
         if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
         {
-            transform.Translate(transform.right * moveSpeed * Time.deltaTime);
+            transform.Translate(-transform.right * moveSpeed * Time.deltaTime);
         } 
         else if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
-            transform.Translate(-transform.right * moveSpeed * Time.deltaTime);
+            transform.Translate(transform.right * moveSpeed * Time.deltaTime);
         }
     }
 
