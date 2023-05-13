@@ -10,6 +10,8 @@ TagManager:
   - ObstacleSpawnPoint
   - ObstaclePool
   - SetManager
+  - ScoreManager
+  - DeathMenu
   layers:
   - Default
   - TransparentFX

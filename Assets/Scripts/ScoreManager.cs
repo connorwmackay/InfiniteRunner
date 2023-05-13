@@ -29,4 +29,9 @@ public class ScoreManager : MonoBehaviour
             scoreText.text = String.Concat(score, "m");
         }
     }
+
+    public int GetScore()
+    {
+        return score;
+    }
 }

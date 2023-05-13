@@ -9,7 +9,11 @@ public class Obstacle : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            GameObject scoreManagerObject = GameObject.FindGameObjectWithTag("ScoreManager");
+            ScoreManager scoreManager = scoreManagerObject.GetComponent<ScoreManager>();
+            int score = scoreManager.GetScore();
+            DeathScreen deathScreen = GameObject.FindGameObjectWithTag("DeathMenu").GetComponent<DeathScreen>();
+            deathScreen.ShowDeathScreen(score);
         }
     }
 }
