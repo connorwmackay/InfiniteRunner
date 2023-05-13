@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -13,33 +14,51 @@ public class PlayerMovement : MonoBehaviour
 
     private bool canJump;
 
+    private Animator _animator;
+
     void Start()
     {
        theRigidbody = GetComponent<Rigidbody>();
+       _animator = GetComponent<Animator>();
        canJump = false;
     }
 
     void FixedUpdate()
     {
-        transform.Translate(-transform.forward * moveSpeed * Time.deltaTime);
+        transform.Translate(transform.forward * moveSpeed * Time.deltaTime);
 
         if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
         {
-            transform.Translate(-transform.right * moveSpeed * Time.deltaTime);
+            transform.Translate(transform.right * moveSpeed * Time.deltaTime);
         } 
         else if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
-            transform.Translate(transform.right * moveSpeed * Time.deltaTime);
+            transform.Translate(-transform.right * moveSpeed * Time.deltaTime);
+        }
+    }
+
+    void SetIsJumping(bool value)
+    {
+        if (_animator != null)
+        {
+            foreach (var parameter in _animator.parameters)
+            {
+                if (parameter.name == "isJumping" && parameter.type == AnimatorControllerParameterType.Bool)
+                {
+                   _animator.SetBool("isJumping", value);
+                   Debug.Log("Is Jumping: " + value);
+                }
+            }
         }
     }
 
     void Update()
     {
-        // TODO: Check if colliding with ground
         if (Input.GetKeyDown(KeyCode.Space) && canJump)
         {
             Debug.Log("Jump");
             GetComponent<Rigidbody>().AddForce(Vector3.up * jumpSize, ForceMode.Impulse);
+            SetIsJumping(true);
             canJump = false;
         }
     }
@@ -48,6 +67,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Set") || collision.gameObject.CompareTag("Ground"))
         {
+            SetIsJumping(false);
             canJump = true;
         }
     }
