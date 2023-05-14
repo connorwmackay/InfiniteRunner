@@ -22,6 +22,7 @@ public class ScoreManager : MonoBehaviour
     void Update()
     {
         Vector3 currentPlayerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
+        currentPlayerPosition.y = initialPlayerPosition.y;
         score = (int)Math.Floor(Vector3.Distance(initialPlayerPosition, currentPlayerPosition));
 
         if (scoreText != null)

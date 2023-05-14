@@ -2,89 +2,254 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading.Tasks;
 using Unity.Collections;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
 
 public class SetManager : MonoBehaviour
 {
-    [SerializeField]
-    public List<GameObject> wallVariants = new List<GameObject>();
-    
-    // A list containing each unique set
-    [SerializeField] private GameObject setPrefab;
-
-    IEnumerator LoadSets()
+    public class SetNode
     {
-        Debug.Log("Loading sets...");
-        Transform playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        private static int nextId = 0;
+        
+        public int Id { get; set; }
+        
+        public SetNode Parent { get; set; }
+        public List<SetNode> Children { get; set; }
+        
+        public Set OwnSet { get; set; }
+        
+        public bool IsExpanded { get; set; }
 
-        GameObject[] loadedSets = GameObject.FindGameObjectsWithTag("Set");
-
-        if (loadedSets.Length > 0)
+        public SetNode(Set ownSet, SetNode parent = null, List<SetNode> children = null)
         {
-            GameObject farthestSet = loadedSets[0];
-
-            GameObject currentSet = null;
-            foreach (GameObject set in loadedSets)
+            Parent = parent;
+            OwnSet = ownSet;
+            IsExpanded = false;
+            Id = nextId++;
+            
+            if (children == null)
             {
-                BoxCollider setCollider = set.GetComponent<BoxCollider>();
-
-                // Doesn't matter how high/low the player is,
-                // therefore, use the set's y value
-
-                Vector3 point = new Vector3(
-                    set.transform.position.x,
-                    set.transform.position.y,
-                    playerTransform.position.z
-                );
-
-                if (setCollider.bounds.Contains(point))
-                {
-                    currentSet = set;
-                    break;
-                }
+                Children = new List<SetNode>();
             }
-
-            if (currentSet != null)
+            else
             {
-                foreach (GameObject set in loadedSets)
-                {
-                    if (set == currentSet)
-                        continue;
-
-                    if (set.transform.position.z > currentSet.transform.position.z)
-                    {
-                        if (set.transform.position.z > farthestSet.transform.position.z)
-                        {
-                            farthestSet = set;
-                        }
-                    }
-                    else
-                    {
-                        Destroy(set);
-                    }
-                }
-            }
-
-            while (GameObject.FindGameObjectsWithTag("Set").Length < 3)
-            {
-                GameObject newSet = Instantiate(setPrefab);
-                newSet.transform.position = farthestSet.transform.position;
-                newSet.transform.Translate(0.0f, 0.0f, 16.0f);
-                farthestSet = newSet;
+                Children = children;
             }
         }
+
+        public void Expand(List<Set> setVariants)
+        {
+            if (IsExpanded)
+            {
+                // Stop expanding the node
+                Debug.LogWarning("Node has already been expanded.");
+                return;
+            }
+            
+            // Continue to expand the node
+            SetSpawnPoint[] setSpawnPoints = OwnSet.gameObject.GetComponentsInChildren<SetSpawnPoint>();
+            foreach (SetSpawnPoint setSpawnPoint in setSpawnPoints)
+            {
+                GameObject setSPObject = setSpawnPoint.gameObject;
+
+                // Remove all sets that would cause a conflict
+                List<Set> allowedSets = new List<Set>();
+                foreach (Set set in setVariants)
+                {
+                    if ((!setSpawnPoint.isUpperLevelAllowed && set.containsUpperLevel))
+                    { } 
+                    else if (!setSpawnPoint.isLowerLevelAllowed && set.containsLowerLevel)
+                    { }
+                    else
+                    {
+                        allowedSets.Add(set);
+                    }
+                }
+                
+                // Pick a random set from those among the allowed sets
+                int newSetIndex = Random.Range(0, allowedSets.Count);
+                Set newSet = allowedSets[newSetIndex];
+                
+                // Create the new set and set its position
+                GameObject newSetObject = Instantiate(newSet.gameObject);
+                newSetObject.transform.position = setSPObject.transform.position;
+                newSetObject.transform.Translate(0, -1, 0);
+
+                // Add the set to the tree
+                SetNode newChild = new SetNode(newSetObject.GetComponent<Set>(), this);
+                Children.Add(newChild);
+            }
+            
+            // Flag this node as being expanded
+            IsExpanded = true;
+        }
+
+        public void ExpandEndNodes(List<Set> setVariants)
+        {
+            foreach (SetNode child in Children)
+            {
+                if (!child.IsExpanded)
+                {
+                    child.Expand(setVariants);
+                }
+                else
+                {
+                    child.ExpandEndNodes(setVariants);
+                }
+            }
+        }
+
+        public SetNode FindNewRoot()
+        {
+            Transform playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+            
+            // Copy of player position
+            Vector3 playerPosition = new Vector3(
+                playerTransform.position.x, 
+                playerTransform.position.y, 
+                playerTransform.position.z
+            );
+            
+            SetNode newRootNode = this;
+            
+            // Correct the position to be the start of the current set
+            playerPosition.z += playerPosition.z % 12;
+            playerPosition.z -= 12.0f;
+
+            float playerRootDistance = Vector3.Distance(
+                newRootNode.OwnSet.gameObject.transform.position,
+                playerPosition
+            );
+            
+            foreach (SetNode child in Children)
+            {
+                SetNode potentialRootNode = child.FindNewRoot();
+
+                float playerChildDistance = Vector3.Distance(
+                    child.OwnSet.gameObject.transform.position,
+                    playerPosition
+                );
+                
+                float playerPRootDistance = Vector3.Distance(
+                    potentialRootNode.OwnSet.gameObject.transform.position,
+                    playerPosition
+                );
+                
+                if (playerChildDistance < playerPRootDistance)
+                {
+                    playerPRootDistance = playerChildDistance;
+                }
+
+                if (playerPRootDistance < playerRootDistance)
+                {
+                    newRootNode = potentialRootNode;
+                    playerRootDistance = playerPRootDistance;
+                }
+            }
+            
+            return newRootNode;
+        }
         
+        public void Unload(SetNode ignoreBranch)
+        {
+            Parent = null;
+            foreach (SetNode child in Children)
+            {
+                if (child.Id != ignoreBranch.Id)
+                {
+                    child.Unload(ignoreBranch);
+                }
+            }
+            
+            Destroy(OwnSet.gameObject);
+        }
+    }
+
+    [SerializeField]
+    public List<GameObject> wallVariants = new List<GameObject>();
+
+    [SerializeField] public List<Set> setVariants = new List<Set>();
+
+    private SetNode tree;
+
+    private Transform playerTransform;
+
+    IEnumerator TraverseSets()
+    {
+        // Find the new tree
+        SetNode newTree = tree.FindNewRoot();
+        
+        // If the tree has changed
+        if (newTree.Id != tree.Id)
+        {
+            // Delete the new root node's parent set
+            newTree.Parent = null;
+            
+            // Expand unexpanded nodes in new tree
+            if (!newTree.IsExpanded)
+            {
+                newTree.Expand(setVariants);
+            }
+            else
+            {
+                newTree.ExpandEndNodes(setVariants);
+            }
+
+            // Update the tree
+            StartCoroutine(UnloadOldTree(newTree));
+            tree = newTree;
+        }
+
+        // Wait 0.5 seconds
         yield return new WaitForSeconds(0.5f);
-        StartCoroutine(LoadSets());
+        
+        // Call this function again after the wait.
+        StartCoroutine(TraverseSets());
+    }
+
+    IEnumerator UnloadOldTree(SetNode newTree)
+    {
+        SetNode oldTree = tree;
+        yield return new WaitForSeconds(0.4f);
+        oldTree.Unload(newTree);
+        //Destroy(oldTree.OwnSet.gameObject);
+    }
+
+    async Task InitialSetSpawn()
+    {
+        tree.Expand(setVariants);
+        foreach (SetNode child in tree.Children)
+        {
+            child.Expand(setVariants);
+        }
     }
 
     public void Start()
     {
+        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        Set rootSet = GameObject.FindWithTag("Set").GetComponent<Set>();
+        tree = new SetNode(rootSet);
         Random.InitState((int)DateTime.Now.Ticks);
-        StartCoroutine(LoadSets());
+        InitialSetSpawn();
+        StartCoroutine(TraverseSets());
+    }
+
+    public void Update()
+    {
+        Vector3 playerPosition = playerTransform.position;
+        if (Vector3.Distance(playerPosition, tree.OwnSet.transform.position) > 50.0f)
+        {
+            GameObject scoreManagerObject = GameObject.FindGameObjectWithTag("ScoreManager");
+            ScoreManager scoreManager = scoreManagerObject.GetComponent<ScoreManager>();
+            int score = scoreManager.GetScore();
+            DeathScreen deathScreen = GameObject.FindGameObjectWithTag("DeathMenu").GetComponent<DeathScreen>();
+            deathScreen.ShowDeathScreen(score);
+        }
     }
 }

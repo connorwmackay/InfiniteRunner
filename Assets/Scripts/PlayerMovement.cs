@@ -46,7 +46,6 @@ public class PlayerMovement : MonoBehaviour
                 if (parameter.name == "isJumping" && parameter.type == AnimatorControllerParameterType.Bool)
                 {
                    _animator.SetBool("isJumping", value);
-                   Debug.Log("Is Jumping: " + value);
                 }
             }
         }
@@ -56,7 +55,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && canJump)
         {
-            Debug.Log("Jump");
             GetComponent<Rigidbody>().AddForce(Vector3.up * jumpSize, ForceMode.Impulse);
             SetIsJumping(true);
             canJump = false;

@@ -12,6 +12,7 @@ TagManager:
   - SetManager
   - ScoreManager
   - DeathMenu
+  - SetSpawnPoint
   layers:
   - Default
   - TransparentFX
