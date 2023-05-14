@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Unity.Collections;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
@@ -12,108 +13,215 @@ using Vector3 = UnityEngine.Vector3;
 
 public class SetManager : MonoBehaviour
 {
+    public class SetNode
+    {
+        private static int nextId = 0;
+        
+        public int Id { get; set; }
+        
+        public SetNode Parent { get; set; }
+        public List<SetNode> Children { get; set; }
+        
+        public Set OwnSet { get; set; }
+        
+        public bool IsExpanded { get; set; }
+
+        public SetNode(Set ownSet, SetNode parent = null, List<SetNode> children = null)
+        {
+            Parent = parent;
+            OwnSet = ownSet;
+            IsExpanded = false;
+            Id = nextId++;
+            
+            if (children == null)
+            {
+                Children = new List<SetNode>();
+            }
+            else
+            {
+                Children = children;
+            }
+        }
+
+        public void Expand(List<Set> setVariants)
+        {
+            if (IsExpanded)
+            {
+                // Stop expanding the node
+                Debug.LogWarning("Node has already been expanded.");
+                return;
+            }
+            
+            // Continue to expand the node
+            SetSpawnPoint[] setSpawnPoints = OwnSet.gameObject.GetComponentsInChildren<SetSpawnPoint>();
+            foreach (SetSpawnPoint setSpawnPoint in setSpawnPoints)
+            {
+                GameObject setSPObject = setSpawnPoint.gameObject;
+
+                // Remove all sets that would cause a conflict
+                List<Set> allowedSets = new List<Set>();
+                foreach (Set set in setVariants)
+                {
+                    if ((!setSpawnPoint.isUpperLevelAllowed && set.containsUpperLevel))
+                    { } 
+                    else if (!setSpawnPoint.isLowerLevelAllowed && set.containsLowerLevel)
+                    { }
+                    else
+                    {
+                        allowedSets.Add(set);
+                    }
+                }
+                
+                // Pick a random set from those among the allowed sets
+                int newSetIndex = Random.Range(0, allowedSets.Count);
+                Set newSet = allowedSets[newSetIndex];
+                
+                // Create the new set and set its position
+                GameObject newSetObject = Instantiate(newSet.gameObject);
+                newSetObject.transform.position = setSPObject.transform.position;
+                newSetObject.transform.Translate(0, -1, 0);
+
+                // Add the set to the tree
+                SetNode newChild = new SetNode(newSetObject.GetComponent<Set>(), this);
+                Children.Add(newChild);
+            }
+            
+            // Flag this node as being expanded
+            IsExpanded = true;
+        }
+
+        public void ExpandEndNodes(List<Set> setVariants)
+        {
+            foreach (SetNode child in Children)
+            {
+                if (!child.IsExpanded)
+                {
+                    child.Expand(setVariants);
+                }
+                else
+                {
+                    child.ExpandEndNodes(setVariants);
+                }
+            }
+        }
+
+        public SetNode FindNewRoot()
+        {
+            Transform playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+            
+            // Copy of player position
+            Vector3 playerPosition = new Vector3(
+                playerTransform.position.x, 
+                playerTransform.position.y, 
+                playerTransform.position.z
+            );
+            
+            SetNode newRootNode = this;
+            
+            // Correct the position to be the start of the current set
+            playerPosition.z += playerPosition.z % 12;
+            playerPosition.z -= 12.0f;
+
+            float playerRootDistance = Vector3.Distance(
+                newRootNode.OwnSet.gameObject.transform.position,
+                playerPosition
+            );
+            
+            foreach (SetNode child in Children)
+            {
+                SetNode potentialRootNode = child.FindNewRoot();
+
+                float playerChildDistance = Vector3.Distance(
+                    child.OwnSet.gameObject.transform.position,
+                    playerPosition
+                );
+                
+                float playerPRootDistance = Vector3.Distance(
+                    potentialRootNode.OwnSet.gameObject.transform.position,
+                    playerPosition
+                );
+                
+                if (playerChildDistance < playerPRootDistance)
+                {
+                    playerPRootDistance = playerChildDistance;
+                }
+
+                if (playerPRootDistance < playerRootDistance)
+                {
+                    newRootNode = potentialRootNode;
+                    playerRootDistance = playerPRootDistance;
+                }
+            }
+            
+            return newRootNode;
+        }
+        
+        public void Unload()
+        {
+            Parent = null;
+            foreach (SetNode child in Children)
+            {
+                child.Unload();
+            }
+            Destroy(OwnSet);
+        }
+    }
+
     [SerializeField]
     public List<GameObject> wallVariants = new List<GameObject>();
 
     [SerializeField] public List<Set> setVariants = new List<Set>();
 
-    IEnumerator LoadSets()
+    private SetNode tree;
+
+    IEnumerator TraverseSets()
     {
-        Debug.Log("Loading sets...");
-        Transform playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
-
-        GameObject[] loadedSets = GameObject.FindGameObjectsWithTag("Set");
-
-        bool wasDestroyed = false;
-        if (loadedSets.Length > 0)
-        {
-            foreach (GameObject set in loadedSets)
-            {
-                if (set.transform.position.z + 12.0f < playerTransform.position.z)
-                {
-                    Destroy(set);
-                    wasDestroyed = true;
-                }
-            }
-        }
-
-        if (wasDestroyed)
-        {
-            SpawnNewSets();
-        }
-
-        yield return new WaitForSeconds(0.5f);
-        StartCoroutine(LoadSets());
-    }
-
-    public async Task SpawnNewSets()
-    {
-        GameObject[] setSpawnPoints = GameObject.FindGameObjectsWithTag("SetSpawnPoint");
-
-        foreach (GameObject setSPObject in setSpawnPoints)
-        {
-            SetSpawnPoint setSpawnPoint = setSPObject.GetComponent<SetSpawnPoint>();
-
-            bool isSetAbove = false;
-            bool isSetBelow = false;
-
-            GameObject[] sets = GameObject.FindGameObjectsWithTag("Set");
-            foreach (GameObject set in sets)
-            {
-                if (Math.Floor(set.transform.position.z) == Math.Floor(setSPObject.transform.position.z))
-                {
-                    if (set.transform.position.y > setSPObject.transform.position.y)
-                    {
-                        isSetAbove = true;
-                    }
-                    
-                    if (set.transform.position.y < setSPObject.transform.position.y)
-                    {
-                        isSetBelow = true;
-                    }
-                }
-            }
-
-            List<Set> allowedSets = new List<Set>();
-            foreach (Set set in setVariants)
-            {
-                if ((!setSpawnPoint.isUpperLevelAllowed && set.containsUpperLevel) ||
-                    (isSetAbove && set.containsUpperLevel))
-                { } 
-                else if (!setSpawnPoint.isLowerLevelAllowed && set.containsLowerLevel ||
-                         isSetBelow && set.containsLowerLevel)
-                { }
-                else
-                {
-                    allowedSets.Add(set);
-                }
-            }
-
-            int newSetIndex = Random.Range(0, allowedSets.Count);
-            Set newSet = allowedSets[newSetIndex];
-            GameObject newSetObject = Instantiate(newSet.gameObject);
-            newSetObject.transform.position = setSPObject.transform.position;
-            newSetObject.transform.Translate(0, -1, 0);
-            
-            setSpawnPoint.gameObject.SetActive(false);
-            Destroy(setSpawnPoint.gameObject);
-        }
+        // Find the new tree
+        SetNode newTree = tree.FindNewRoot();
+        Debug.Log("New Root Position: " + newTree.OwnSet.transform.position);
+        newTree.Parent = null;
         
-        Debug.Log("Num Spawn Points After: " + setSpawnPoints.Length);
+        // TODO: Unload nodes no longer part of the tree
+        
+        // If the tree has changed
+        if (newTree.Id != tree.Id)
+        {
+            // Expand unexpanded nodes in new tree
+            if (!newTree.IsExpanded)
+            {
+                newTree.Expand(setVariants);
+            }
+            else
+            {
+                newTree.ExpandEndNodes(setVariants);
+            }
+
+            // Update the tree
+            tree = newTree;
+        }
+
+        // Wait 0.5 seconds
+        yield return new WaitForSeconds(0.5f);
+        
+        // Call this function again after the wait.
+        StartCoroutine(TraverseSets());
     }
 
     async Task InitialSetSpawn()
     {
-        await SpawnNewSets();
-        await SpawnNewSets();
-        await SpawnNewSets();
-        await SpawnNewSets();
+        tree.Expand(setVariants);
+        foreach (SetNode child in tree.Children)
+        {
+            child.Expand(setVariants);
+        }
     }
 
     public void Start()
     {
+        Set rootSet = GameObject.FindWithTag("Set").GetComponent<Set>();
+        tree = new SetNode(rootSet);
         Random.InitState((int)DateTime.Now.Ticks);
         InitialSetSpawn();
-        StartCoroutine(LoadSets());
+        StartCoroutine(TraverseSets());
     }
 }
