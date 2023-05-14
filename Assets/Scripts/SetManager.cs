@@ -1,13 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Threading.Tasks;
-using Unity.Collections;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
 
@@ -232,6 +227,7 @@ public class SetManager : MonoBehaviour
 
     public void Start()
     {
+        Time.timeScale = 1;
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
         Set rootSet = GameObject.FindWithTag("Set").GetComponent<Set>();
         tree = new SetNode(rootSet);
