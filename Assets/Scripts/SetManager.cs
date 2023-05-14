@@ -178,12 +178,13 @@ public class SetManager : MonoBehaviour
 
     private SetNode tree;
 
+    private Transform playerTransform;
+
     IEnumerator TraverseSets()
     {
         // Find the new tree
         SetNode newTree = tree.FindNewRoot();
-        Debug.Log("New Root Position: " + newTree.OwnSet.transform.position);
-
+        
         // If the tree has changed
         if (newTree.Id != tree.Id)
         {
@@ -215,7 +216,7 @@ public class SetManager : MonoBehaviour
     IEnumerator UnloadOldTree(SetNode newTree)
     {
         SetNode oldTree = tree;
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.4f);
         oldTree.Unload(newTree);
         //Destroy(oldTree.OwnSet.gameObject);
     }
@@ -231,10 +232,24 @@ public class SetManager : MonoBehaviour
 
     public void Start()
     {
+        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
         Set rootSet = GameObject.FindWithTag("Set").GetComponent<Set>();
         tree = new SetNode(rootSet);
         Random.InitState((int)DateTime.Now.Ticks);
         InitialSetSpawn();
         StartCoroutine(TraverseSets());
+    }
+
+    public void Update()
+    {
+        Vector3 playerPosition = playerTransform.position;
+        if (Vector3.Distance(playerPosition, tree.OwnSet.transform.position) > 50.0f)
+        {
+            GameObject scoreManagerObject = GameObject.FindGameObjectWithTag("ScoreManager");
+            ScoreManager scoreManager = scoreManagerObject.GetComponent<ScoreManager>();
+            int score = scoreManager.GetScore();
+            DeathScreen deathScreen = GameObject.FindGameObjectWithTag("DeathMenu").GetComponent<DeathScreen>();
+            deathScreen.ShowDeathScreen(score);
+        }
     }
 }
