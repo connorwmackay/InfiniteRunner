@@ -156,14 +156,18 @@ public class SetManager : MonoBehaviour
             return newRootNode;
         }
         
-        public void Unload()
+        public void Unload(SetNode ignoreBranch)
         {
             Parent = null;
             foreach (SetNode child in Children)
             {
-                child.Unload();
+                if (child.Id != ignoreBranch.Id)
+                {
+                    child.Unload(ignoreBranch);
+                }
             }
-            Destroy(OwnSet);
+            
+            Destroy(OwnSet.gameObject);
         }
     }
 
@@ -179,13 +183,13 @@ public class SetManager : MonoBehaviour
         // Find the new tree
         SetNode newTree = tree.FindNewRoot();
         Debug.Log("New Root Position: " + newTree.OwnSet.transform.position);
-        newTree.Parent = null;
-        
-        // TODO: Unload nodes no longer part of the tree
-        
+
         // If the tree has changed
         if (newTree.Id != tree.Id)
         {
+            // Delete the new root node's parent set
+            newTree.Parent = null;
+            
             // Expand unexpanded nodes in new tree
             if (!newTree.IsExpanded)
             {
@@ -197,6 +201,7 @@ public class SetManager : MonoBehaviour
             }
 
             // Update the tree
+            StartCoroutine(UnloadOldTree(newTree));
             tree = newTree;
         }
 
@@ -205,6 +210,14 @@ public class SetManager : MonoBehaviour
         
         // Call this function again after the wait.
         StartCoroutine(TraverseSets());
+    }
+
+    IEnumerator UnloadOldTree(SetNode newTree)
+    {
+        SetNode oldTree = tree;
+        yield return new WaitForSeconds(0.25f);
+        oldTree.Unload(newTree);
+        //Destroy(oldTree.OwnSet.gameObject);
     }
 
     async Task InitialSetSpawn()
