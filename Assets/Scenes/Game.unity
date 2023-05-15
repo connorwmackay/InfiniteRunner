@@ -992,19 +992,19 @@ PrefabInstance:
         type: 3}
       propertyPath: setVariants.Array.data[2]
       value: 
-      objectReference: {fileID: 7504830613358397584, guid: a6937621228ea9e4c96bf8fa43030063,
+      objectReference: {fileID: 7504830613358397584, guid: 7296beff3f4c3b644a741dcbc1514b70,
         type: 3}
     - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
         type: 3}
       propertyPath: setVariants.Array.data[3]
       value: 
-      objectReference: {fileID: 7504830613358397584, guid: 7296beff3f4c3b644a741dcbc1514b70,
+      objectReference: {fileID: 7504830613358397584, guid: fa399d257465dc642b3c1f0f0f854638,
         type: 3}
     - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
         type: 3}
       propertyPath: setVariants.Array.data[4]
       value: 
-      objectReference: {fileID: 7504830613358397584, guid: fa399d257465dc642b3c1f0f0f854638,
+      objectReference: {fileID: 7504830613358397584, guid: 70d8703ad202df74dbac0a08c6a3c39a,
         type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

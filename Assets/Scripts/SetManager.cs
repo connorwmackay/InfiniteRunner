@@ -151,18 +151,31 @@ public class SetManager : MonoBehaviour
             return newRootNode;
         }
         
-        public void Unload(SetNode ignoreBranch)
+        public void Unload(SetNode ignoreBranch, ref List<SetNode> unloadQueue)
         {
+            Transform playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+            
+            // Copy of player position
+            Vector3 playerPosition = new Vector3(
+                playerTransform.position.x, 
+                playerTransform.position.y, 
+                playerTransform.position.z
+            );
+
+            // Correct the position to be the start of the current set
+            playerPosition.z += playerPosition.z % 12;
+            playerPosition.z -= 12.0f;
+            
             Parent = null;
             foreach (SetNode child in Children)
             {
                 if (child.Id != ignoreBranch.Id)
                 {
-                    child.Unload(ignoreBranch);
+                    child.Unload(ignoreBranch, ref unloadQueue);
                 }
             }
             
-            Destroy(OwnSet.gameObject);
+            unloadQueue.Add(this);
         }
     }
 
@@ -172,6 +185,8 @@ public class SetManager : MonoBehaviour
     [SerializeField] public List<Set> setVariants = new List<Set>();
 
     private SetNode tree;
+
+    private List<SetNode> unloadQueue;
 
     private Transform playerTransform;
 
@@ -197,7 +212,36 @@ public class SetManager : MonoBehaviour
             }
 
             // Update the tree
-            StartCoroutine(UnloadOldTree(newTree));
+            UnloadOldTree(newTree);
+            Vector3 currentSetTransform = new Vector3(
+                playerTransform.position.x,
+                playerTransform.position.y,
+                playerTransform.position.z
+            );
+            currentSetTransform.z += currentSetTransform.z % 12;
+            float setLength = 12.0f;
+            currentSetTransform.z -= setLength * 2;
+            
+            for (int i=0; i < unloadQueue.Count; i++)
+            {
+                SetNode node = unloadQueue[i];
+
+                float distanceFromPlayer = Vector3.Distance(
+                    new Vector3(
+                        playerTransform.position.x,
+                        playerTransform.position.y,
+                        currentSetTransform.z + setLength
+                    ),
+                    node.OwnSet.transform.position
+                );
+                
+                if (node.OwnSet.transform.position.z < currentSetTransform.z)
+                {
+                    unloadQueue.RemoveAt(i);
+                    Destroy(node.OwnSet.gameObject);
+                }
+            }
+            
             tree = newTree;
         }
 
@@ -208,12 +252,10 @@ public class SetManager : MonoBehaviour
         StartCoroutine(TraverseSets());
     }
 
-    IEnumerator UnloadOldTree(SetNode newTree)
+    void UnloadOldTree(SetNode newTree)
     {
         SetNode oldTree = tree;
-        yield return new WaitForSeconds(0.4f);
-        oldTree.Unload(newTree);
-        //Destroy(oldTree.OwnSet.gameObject);
+        oldTree.Unload(newTree, ref unloadQueue);
     }
 
     async Task InitialSetSpawn()
@@ -227,6 +269,7 @@ public class SetManager : MonoBehaviour
 
     public void Start()
     {
+        unloadQueue = new List<SetNode>();
         Time.timeScale = 1;
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
         Set rootSet = GameObject.FindWithTag("Set").GetComponent<Set>();
