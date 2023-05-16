@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class Obstacle : MonoBehaviour
 {
+
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
