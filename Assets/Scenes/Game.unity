@@ -123,6 +123,50 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &217888768
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 217888769}
+  - component: {fileID: 217888770}
+  m_Layer: 0
+  m_Name: SeedManager
+  m_TagString: SeedManager
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &217888769
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217888768}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -634.3112, y: -141.31096, z: 195.91354}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &217888770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217888768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a26ebf061089de47a62a57cae0523c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &240673558
 GameObject:
   m_ObjectHideFlags: 0
@@ -974,7 +1018,12 @@ PrefabInstance:
     - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
         type: 3}
       propertyPath: setVariants.Array.size
-      value: 5
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
+        type: 3}
+      propertyPath: wallVariants.Array.size
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
         type: 3}
@@ -1005,6 +1054,48 @@ PrefabInstance:
       propertyPath: setVariants.Array.data[4]
       value: 
       objectReference: {fileID: 7504830613358397584, guid: 70d8703ad202df74dbac0a08c6a3c39a,
+        type: 3}
+    - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
+        type: 3}
+      propertyPath: setVariants.Array.data[5]
+      value: 
+      objectReference: {fileID: 7504830613358397584, guid: f30938e788013d84fbde990c0ced067a,
+        type: 3}
+    - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
+        type: 3}
+      propertyPath: setVariants.Array.data[6]
+      value: 
+      objectReference: {fileID: 7504830613358397584, guid: 9cfaa7835eb698446b901e49a58f52df,
+        type: 3}
+    - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
+        type: 3}
+      propertyPath: wallVariants.Array.data[6]
+      value: 
+      objectReference: {fileID: 2765104493959161590, guid: ea23c8a2f9dfdaa48a051c210396c107,
+        type: 3}
+    - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
+        type: 3}
+      propertyPath: wallVariants.Array.data[7]
+      value: 
+      objectReference: {fileID: 5673007798554648532, guid: 1111d2a1cfcf4dc41be78cedb0f2587a,
+        type: 3}
+    - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
+        type: 3}
+      propertyPath: wallVariants.Array.data[8]
+      value: 
+      objectReference: {fileID: 5673007798554648532, guid: cb0872523bd1c0041b42dd7445832362,
+        type: 3}
+    - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
+        type: 3}
+      propertyPath: wallVariants.Array.data[9]
+      value: 
+      objectReference: {fileID: 5673007798554648532, guid: a40ae9e51553a024b981496c1fdf1d09,
+        type: 3}
+    - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
+        type: 3}
+      propertyPath: wallVariants.Array.data[10]
+      value: 
+      objectReference: {fileID: 5673007798554648532, guid: c5491bd077cf81b45b93ec59257313a2,
         type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1225,7 +1316,7 @@ MonoBehaviour:
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
-  m_Antialiasing: 0
+  m_Antialiasing: 1
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0

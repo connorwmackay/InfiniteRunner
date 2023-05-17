@@ -10,11 +10,13 @@ public class MusicPlayer : MonoBehaviour
 
     [SerializeField] private List<AudioClip> _audioClips = new List<AudioClip>();
 
+    private SeedManager seedManager;
+
     AudioClip ChooseRandomClip()
     {
         if (_audioClips.Count > 0)
         {
-            int randomIndex = Random.Range(0, _audioClips.Count);
+            int randomIndex = seedManager.RandomRange(0, _audioClips.Count);
             return _audioClips[randomIndex];
         }
         
@@ -23,8 +25,7 @@ public class MusicPlayer : MonoBehaviour
     
     void Start()
     {
-        Random.InitState((int)DateTime.Now.Ticks);
-        
+        seedManager = GameObject.FindGameObjectWithTag("SeedManager").GetComponent<SeedManager>();
         _audioSource = GetComponent<AudioSource>();
 
         if (_audioSource && _audioClips.Count > 0)

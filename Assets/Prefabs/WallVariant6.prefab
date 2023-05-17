@@ -50,7 +50,7 @@ Transform:
   - {fileID: 1789633721960904010}
   - {fileID: 4024903044698010472}
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3722687361385451768
 MonoBehaviour:
@@ -64,7 +64,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09d09c50ae1599d48baf69859b46f824, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isJumpRequired: 1
+  IsJump: 1
+  AllowedFollowUpWalls:
+  - {fileID: 4897950270799349780, guid: f3bc70af56f892c498b7a1bd61f6f6ec, type: 3}
+  - {fileID: 6176054984882679107, guid: 5bfd1b677cb42a14684a85e0a77b828c, type: 3}
+  - {fileID: 7344836553530996566, guid: 89db6a8711f4be8498ffb08819343e63, type: 3}
+  - {fileID: 5673007798554648532, guid: a40ae9e51553a024b981496c1fdf1d09, type: 3}
+  - {fileID: 5673007798554648532, guid: c5491bd077cf81b45b93ec59257313a2, type: 3}
 --- !u!1001 &756197139457871118
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -881,7 +887,7 @@ PrefabInstance:
     - target: {fileID: 2745206809629217264, guid: 546a8dcabc748af4ca5505f302dff549,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.020000458
       objectReference: {fileID: 0}
     - target: {fileID: 2745206809629217264, guid: 546a8dcabc748af4ca5505f302dff549,
         type: 3}
@@ -1355,7 +1361,7 @@ PrefabInstance:
     - target: {fileID: 2745206809629217264, guid: 546a8dcabc748af4ca5505f302dff549,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.02
       objectReference: {fileID: 0}
     - target: {fileID: 2745206809629217264, guid: 546a8dcabc748af4ca5505f302dff549,
         type: 3}

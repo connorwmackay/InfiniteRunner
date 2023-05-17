@@ -4,5 +4,6 @@ using UnityEngine;
 
 public class WallVariant : MonoBehaviour
 {
-    [SerializeField] public bool isJumpRequired = false;
+    [SerializeField] public bool IsJump = false;
+    [SerializeField] public List<GameObject> AllowedFollowUpWalls = new List<GameObject>();
 }

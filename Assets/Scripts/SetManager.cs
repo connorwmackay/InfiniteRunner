@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
 
 public class SetManager : MonoBehaviour
@@ -68,7 +68,8 @@ public class SetManager : MonoBehaviour
                 }
                 
                 // Pick a random set from those among the allowed sets
-                int newSetIndex = Random.Range(0, allowedSets.Count);
+                SeedManager seedManager = GameObject.FindGameObjectWithTag("SeedManager").GetComponent<SeedManager>();
+                int newSetIndex = seedManager.RandomRange(0, allowedSets.Count);
                 Set newSet = allowedSets[newSetIndex];
                 
                 // Create the new set and set its position
@@ -177,6 +178,28 @@ public class SetManager : MonoBehaviour
             
             unloadQueue.Add(this);
         }
+
+        public List<SetNode> GetEndNodes(Set set, List<SetNode> endNodes = null)
+        {
+            if (endNodes == null)
+            {
+                endNodes = new List<SetNode>();
+            }
+
+            foreach (SetNode child in Children)
+            {
+                if (!child.IsExpanded)
+                {
+                    endNodes.Add(child);
+                }
+                else
+                {
+                    child.GetEndNodes(set, endNodes);
+                }
+            }
+
+            return endNodes;
+        }
     }
 
     [SerializeField]
@@ -184,11 +207,13 @@ public class SetManager : MonoBehaviour
 
     [SerializeField] public List<Set> setVariants = new List<Set>();
 
-    private SetNode tree;
+    public SetNode tree;
 
     private List<SetNode> unloadQueue;
 
     private Transform playerTransform;
+
+    private SeedManager seedManager;
 
     IEnumerator TraverseSets()
     {
@@ -269,12 +294,12 @@ public class SetManager : MonoBehaviour
 
     public void Start()
     {
+        seedManager = GameObject.FindGameObjectWithTag("SeedManager").GetComponent<SeedManager>();
         unloadQueue = new List<SetNode>();
         Time.timeScale = 1;
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
         Set rootSet = GameObject.FindWithTag("Set").GetComponent<Set>();
         tree = new SetNode(rootSet);
-        Random.InitState((int)DateTime.Now.Ticks);
         InitialSetSpawn();
         StartCoroutine(TraverseSets());
     }
