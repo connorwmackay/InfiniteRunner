@@ -13,10 +13,6 @@ public class Set : MonoBehaviour
     
     [SerializeField] private List<GameObject> wallVariants = new List<GameObject>();
 
-    private static int currentId = 0;
-
-    public int Id;
-
     public Color TintColour;
 
     public List<WallVariant> walls;
@@ -62,25 +58,8 @@ public class Set : MonoBehaviour
         walls.Add(wall.GetComponent<WallVariant>());
     }
 
-    public void GenerateAllWalls()
+    public void GenerateAllWalls(WallVariant prevSetLastWall = null)
     {
-        SetManager setManager = GameObject.FindWithTag("SetManager").GetComponent<SetManager>();
-        wallVariants = setManager.wallVariants;
-
-        WallVariant[] treeWallVariants = setManager.tree.OwnSet.GetComponentsInChildren<WallVariant>();
-        WallVariant farthestWallVariant = null;
-        foreach (WallVariant wallVariant in treeWallVariants)
-        {
-            if (farthestWallVariant == null)
-            {
-                farthestWallVariant = wallVariant;
-            }
-            else if (wallVariant.transform.position.z > farthestWallVariant.transform.position.z)
-            {
-                farthestWallVariant = wallVariant;
-            }
-        }
-        
         Transform[] children = GetComponentsInChildren<Transform>();
         foreach (Transform child in children)
         {
@@ -90,9 +69,9 @@ public class Set : MonoBehaviour
                 {
                     GenerateWall(child.gameObject, previousWallVariant: walls[walls.Count - 1]);
                 }
-                else if (farthestWallVariant != null)
+                else if (prevSetLastWall != null)
                 {
-                    GenerateWall(child.gameObject, previousWallVariant: farthestWallVariant);
+                    GenerateWall(child.gameObject, previousWallVariant: prevSetLastWall);
                 }
                 else
                 {
@@ -102,9 +81,8 @@ public class Set : MonoBehaviour
         }
     }
     
-    void Start()
+    void Awake()
     {
-        Id = currentId++;
         walls = new List<WallVariant>();
         seedManager = GameObject.FindGameObjectWithTag("SeedManager").GetComponent<SeedManager>();
         wallVariants = GameObject.FindGameObjectWithTag("SetManager").GetComponent<SetManager>().wallVariants;
@@ -131,7 +109,5 @@ public class Set : MonoBehaviour
                 obstacle.materials[0].SetColor("_Colour", TintColour);
             }
         }
-
-        GenerateAllWalls();
     }
 }

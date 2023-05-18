@@ -76,6 +76,14 @@ public class SetManager : MonoBehaviour
                 GameObject newSetObject = Instantiate(newSet.gameObject);
                 newSetObject.transform.position = setSPObject.transform.position;
                 newSetObject.transform.Translate(0, -1, 0);
+                List<WallVariant> wallVariants = this.OwnSet.walls;
+                WallVariant lastWallVariant = null;
+                if (wallVariants.Count > 0)
+                {
+                    lastWallVariant = wallVariants[wallVariants.Count - 1];
+                }
+
+                newSetObject.GetComponent<Set>().GenerateAllWalls(lastWallVariant);
 
                 // Add the set to the tree
                 SetNode newChild = new SetNode(newSetObject.GetComponent<Set>(), this);

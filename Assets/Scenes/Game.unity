@@ -1018,7 +1018,7 @@ PrefabInstance:
     - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
         type: 3}
       propertyPath: setVariants.Array.size
-      value: 7
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
         type: 3}
@@ -1053,19 +1053,19 @@ PrefabInstance:
         type: 3}
       propertyPath: setVariants.Array.data[4]
       value: 
-      objectReference: {fileID: 7504830613358397584, guid: 70d8703ad202df74dbac0a08c6a3c39a,
+      objectReference: {fileID: 7504830613358397584, guid: f30938e788013d84fbde990c0ced067a,
         type: 3}
     - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
         type: 3}
       propertyPath: setVariants.Array.data[5]
       value: 
-      objectReference: {fileID: 7504830613358397584, guid: f30938e788013d84fbde990c0ced067a,
+      objectReference: {fileID: 7504830613358397584, guid: 9cfaa7835eb698446b901e49a58f52df,
         type: 3}
     - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
         type: 3}
       propertyPath: setVariants.Array.data[6]
       value: 
-      objectReference: {fileID: 7504830613358397584, guid: 9cfaa7835eb698446b901e49a58f52df,
+      objectReference: {fileID: 7504830613358397584, guid: 70d8703ad202df74dbac0a08c6a3c39a,
         type: 3}
     - target: {fileID: 7741893150846063451, guid: 9df04febe8a22384497fb74968689dae,
         type: 3}
@@ -1842,7 +1842,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4000011647791902, guid: 0d86795920eaddb4ba82646fed326c25, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.5
+      value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 4000011647791902, guid: 0d86795920eaddb4ba82646fed326c25, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1927,7 +1927,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  jumpSize: 6
+  jumpSize: 5
 --- !u!54 &1542576965
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1974,8 +1974,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.47221646, y: 1.0387275, z: 0.35739732}
-  m_Center: {x: 0.005173286, y: 0.50892115, z: -0.030437946}
+  m_Size: {x: 0.47221646, y: 1.0031767, z: 0.35739732}
+  m_Center: {x: 0.005173286, y: 0.50532424, z: -0.030437946}
 --- !u!1 &1584142472
 GameObject:
   m_ObjectHideFlags: 0
