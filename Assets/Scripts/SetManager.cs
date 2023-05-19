@@ -67,8 +67,41 @@ public class SetManager : MonoBehaviour
                     }
                 }
                 
+                // Find the the parent set's last wall, if any
+                List<WallVariant> wallVariants = this.OwnSet.walls;
+                WallVariant lastWallVariant = null;
+                if (wallVariants.Count > 0)
+                {
+                    lastWallVariant = wallVariants[wallVariants.Count - 1];
+                }
+                
                 // Pick a random set from those among the allowed sets
                 SeedManager seedManager = GameObject.FindGameObjectWithTag("SeedManager").GetComponent<SeedManager>();
+
+                if (lastWallVariant)
+                {
+                    List<Set> newAllowedSets = new List<Set>();
+                    foreach (Set set in allowedSets)
+                    {
+                        bool isBanned = false;
+                        
+                        foreach (Set bannedSet in lastWallVariant.BannedSets)
+                        {
+                            if (set.name == bannedSet.name)
+                            {
+                                isBanned = true;
+                            }
+                        }
+
+                        if (!isBanned)
+                        {
+                            newAllowedSets.Add(set);
+                        }
+                    }
+
+                    allowedSets = newAllowedSets;
+                }
+                
                 int newSetIndex = seedManager.RandomRange(0, allowedSets.Count);
                 Set newSet = allowedSets[newSetIndex];
                 
@@ -76,12 +109,6 @@ public class SetManager : MonoBehaviour
                 GameObject newSetObject = Instantiate(newSet.gameObject);
                 newSetObject.transform.position = setSPObject.transform.position;
                 newSetObject.transform.Translate(0, -1, 0);
-                List<WallVariant> wallVariants = this.OwnSet.walls;
-                WallVariant lastWallVariant = null;
-                if (wallVariants.Count > 0)
-                {
-                    lastWallVariant = wallVariants[wallVariants.Count - 1];
-                }
 
                 newSetObject.GetComponent<Set>().GenerateAllWalls(lastWallVariant);
 
@@ -306,8 +333,11 @@ public class SetManager : MonoBehaviour
         unloadQueue = new List<SetNode>();
         Time.timeScale = 1;
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
-        Set rootSet = GameObject.FindWithTag("Set").GetComponent<Set>();
-        tree = new SetNode(rootSet);
+        int randomRootSetIndex = seedManager.RandomRange(0, setVariants.Count);
+        GameObject rootSet = Instantiate(setVariants[randomRootSetIndex].gameObject);
+        rootSet.transform.position.Set(0.0f, 0.0f, 0.0f);
+        tree = new SetNode(rootSet.GetComponent<Set>());
+        tree.OwnSet.GenerateAllWalls();
         InitialSetSpawn();
         StartCoroutine(TraverseSets());
     }

@@ -62,6 +62,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09d09c50ae1599d48baf69859b46f824, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsJump: 0
   AllowedFollowUpWalls:
   - {fileID: 4897950270799349780, guid: f3bc70af56f892c498b7a1bd61f6f6ec, type: 3}
   - {fileID: 6176054984882679107, guid: 5bfd1b677cb42a14684a85e0a77b828c, type: 3}
@@ -71,7 +72,6 @@ MonoBehaviour:
   - {fileID: 2765104493959161590, guid: 2212544a38804fc44ab4f5a0db55248c, type: 3}
   - {fileID: 2765104493959161590, guid: ea23c8a2f9dfdaa48a051c210396c107, type: 3}
   - {fileID: 5673007798554648532, guid: 1111d2a1cfcf4dc41be78cedb0f2587a, type: 3}
-  - {fileID: 5673007798554648532, guid: cb0872523bd1c0041b42dd7445832362, type: 3}
   - {fileID: 5673007798554648532}
   - {fileID: 5673007798554648532, guid: c5491bd077cf81b45b93ec59257313a2, type: 3}
 --- !u!1001 &22593493175976504

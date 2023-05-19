@@ -63,6 +63,9 @@ MonoBehaviour:
   - {fileID: 7344836553530996566, guid: 89db6a8711f4be8498ffb08819343e63, type: 3}
   - {fileID: 5673007798554648532, guid: a40ae9e51553a024b981496c1fdf1d09, type: 3}
   - {fileID: 5673007798554648532, guid: c5491bd077cf81b45b93ec59257313a2, type: 3}
+  BannedSets:
+  - {fileID: 7504830613358397584, guid: f30938e788013d84fbde990c0ced067a, type: 3}
+  - {fileID: 7504830613358397584, guid: 9cfaa7835eb698446b901e49a58f52df, type: 3}
 --- !u!1001 &756197139457871118
 PrefabInstance:
   m_ObjectHideFlags: 0

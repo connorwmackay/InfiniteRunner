@@ -61,15 +61,19 @@ public class Set : MonoBehaviour
     public void GenerateAllWalls(WallVariant prevSetLastWall = null)
     {
         Transform[] children = GetComponentsInChildren<Transform>();
-        foreach (Transform child in children)
+        List<Transform> sortedChildren = new List<Transform>();
+        sortedChildren.AddRange(children);
+        sortedChildren = sortedChildren.OrderBy(o => o.position.z).ToList();
+        foreach (Transform child in sortedChildren)
         {
             if (child.gameObject.CompareTag("ObstacleSpawnPoint"))
             {
                 if (walls.Count > 0)
                 {
-                    GenerateWall(child.gameObject, previousWallVariant: walls[walls.Count - 1]);
+                    prevSetLastWall = walls[walls.Count - 1];
                 }
-                else if (prevSetLastWall != null)
+                
+                if (prevSetLastWall != null)
                 {
                     GenerateWall(child.gameObject, previousWallVariant: prevSetLastWall);
                 }
