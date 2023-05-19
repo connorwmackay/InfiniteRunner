@@ -42,4 +42,12 @@ public class DeathScreen : MonoBehaviour
         Time.timeScale = 1;
         SceneManager.LoadScene(0);
     }
+
+    void Update()
+    {
+        if (_panel.activeSelf && Input.GetKeyDown(KeyCode.R))
+        {
+            Restart();
+        }
+    }
 }

@@ -337,7 +337,6 @@ public class SetManager : MonoBehaviour
         GameObject rootSet = Instantiate(setVariants[randomRootSetIndex].gameObject);
         rootSet.transform.position.Set(0.0f, 0.0f, 0.0f);
         tree = new SetNode(rootSet.GetComponent<Set>());
-        tree.OwnSet.GenerateAllWalls();
         InitialSetSpawn();
         StartCoroutine(TraverseSets());
     }
